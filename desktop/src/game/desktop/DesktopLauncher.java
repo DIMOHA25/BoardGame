@@ -1,4 +1,4 @@
-package com.bgym.undauntednormandy.desktop;
+package game.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
