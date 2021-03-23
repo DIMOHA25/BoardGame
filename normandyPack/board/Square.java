@@ -10,8 +10,6 @@ public class Square {
     private int xCoord, yCoord, armor, points, levelOfControl[] = {0,0};
     //                       A,    B,    C, Mortar,Snipers
     private boolean spawns[][] = {{false,false,false,false,false},{false,false,false,false,false}};
-    private boolean targeting;
-    private int targetX, targetY;
     private Field field;
     private ArrayList<Token> tokensInside;
 
@@ -20,7 +18,6 @@ public class Square {
         this.yCoord = yCoord;
         this.armor = armor;
         this.points = points;
-        this.targeting = false;
         this.field = field;
         this.tokensInside = new ArrayList<Token>();
 
@@ -44,15 +41,37 @@ public class Square {
     public int getY() {
         return this.yCoord;
     }
+    public boolean[][] getSpawns() {
+        return this.spawns;
+    }
     public Field getField() {
         return this.field;
     }
-
-    public void addToken(int team, String type) {
-        (this.tokensInside).add( new Token(this.xCoord, this.yCoord, team, type, this) );
+    public int getLevelOfControl(int team) {
+        return this.levelOfControl[team];
     }
-    public void addToken(int team, String type, int squad) {
-        (this.tokensInside).add( new Token(this.xCoord, this.yCoord, team, type, squad, this) );
+    public int getRawArmor() {
+        return this.armor;
+    }
+    public int getArmor(Token attackerToken) {
+        if (this.armor != 4) return this.armor;
+
+        if ( (attackerToken.getSquare()).getRawArmor() == 4 ||
+        attackerToken.getType() == Constants.TYPE_NAMES[6] ) {
+            return 1;
+        }
+        return 3;
+    }
+    public ArrayList<Token> getTokensInside() {
+        return this.tokensInside;
+    }
+
+    public Token addToken(int team, String type, int squad) {
+        Token token = new Token(team, type, squad, this);
+        
+        (this.tokensInside).add(token);
+        ((this.field).getGame()).pinCheck();
+        return token;
     }
     public void addToken(Token token) {
         (this.tokensInside).add(token);
@@ -62,7 +81,54 @@ public class Square {
         (this.tokensInside).remove(token);
     }
 
-    public int measureDistance(Square otherSquare) {
+    public boolean controlAction(int teamOfController) {
+        boolean foundEnemy = false;
+
+        for (Token token : this.tokensInside) {
+            if ( token.getTeam() != teamOfController ) {
+                foundEnemy = true;
+                break;
+            }        
+        }
+
+        if ( !foundEnemy && this.levelOfControl[teamOfController] == 1 ) {
+            this.levelOfControl[teamOfController] = 2;
+            switch (teamOfController) {
+                case (Constants.TEAM_AMERICANS):
+                    ((this.field).getGame()).addToAmericanScore(this.points);
+                    break;
+                case (Constants.TEAM_GERMANS):
+                    ((this.field).getGame()).addToGermanScore(this.points);
+                    break;
+            }
+            if (this.levelOfControl[Constants.otherTeam(teamOfController)] == 2) {
+                this.levelOfControl[Constants.otherTeam(teamOfController)] = 1;
+                switch (teamOfController) {
+                    case (Constants.TEAM_AMERICANS):
+                        ((this.field).getGame()).addToAmericanScore(-this.points);
+                        break;
+                    case (Constants.TEAM_GERMANS):
+                        ((this.field).getGame()).addToGermanScore(-this.points);
+                        break;
+                }
+            }
+            ((this.field).getGame()).winCheck();
+            return true;
+        } else {
+            System.out.println("HUIHUIHUI");
+            return false;
+        }
+    }
+    public boolean scoutAction(int teamOfScouter) {
+        if ( this.levelOfControl[teamOfScouter] == 0 ) {
+            this.levelOfControl[teamOfScouter] = 1;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public int measureDistanceTo(Square otherSquare) {
         int xDifference = this.xCoord - otherSquare.getX();
         int yDifference = this.yCoord - otherSquare.getY();
         int directionIndicator = xDifference * yDifference;
@@ -102,11 +168,11 @@ public class Square {
         for ( int i = 0; i < 2; i++ ) {
             if ( squareSpawns[i] == true ) {
                 System.out.print( ", spawns:(" );
-                if (this.spawns[i][0] == true) System.out.print( i + "\'s A squad" );
-                if (this.spawns[i][0] == true) System.out.print( ", " + i + "\'s B squad" );
-                if (this.spawns[i][0] == true) System.out.print( ", " + i + "\'s C squad" );
-                if (this.spawns[i][0] == true) System.out.print( ", " + i + "\'s snipers" );
-                if (this.spawns[i][0] == true) System.out.print( ", " + i + "\'s mortar" );
+                if (this.spawns[i][0] == true) System.out.print( Constants.teamName(i) + " A squad, " );
+                if (this.spawns[i][1] == true) System.out.print( Constants.teamName(i) + " B squad, " );
+                if (this.spawns[i][2] == true) System.out.print( Constants.teamName(i) + " C squad, " );
+                if (this.spawns[i][3] == true) System.out.print( Constants.teamName(i) + " mortar, " );
+                if (this.spawns[i][4] == true) System.out.print( Constants.teamName(i) + " snipers, " );
                 System.out.print( ")" );
             }
         }

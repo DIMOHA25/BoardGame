@@ -7,9 +7,12 @@ import normandyPack.game.*;
 import normandyPack.constantValues.*;
 
 public class Game {
+    Scanner scanner = new Scanner(System.in);
+    //
     private int americanScore, germanScore;
     private int americanGoal, germanGoal;
     private int initiative, scenarioNumber;
+    private boolean verticalLines;
     private boolean americansPinned, germansPinned;
     private boolean victorDecided, americansWon;
     private ArrayList<Token> americanTokens, germanTokens;
@@ -50,6 +53,17 @@ public class Game {
     public CardGroup getPlayArea(int team) {
         return this.playAreas[team];
     }
+
+    public Field getField() {
+        return this.field;
+    }
+    public ArrayList<Token> getTokenList(int team) {
+        if ( team == Constants.TEAM_AMERICANS ) {
+            return this.americanTokens;
+        } else {
+            return this.germanTokens;
+        }
+    }
     
     public void addToAmericanScore(int addition) {
         this.americanScore += addition;
@@ -71,6 +85,23 @@ public class Game {
         } else {
             (this.germanTokens).remove(token);
         }
+    }
+    public Token findToken(String type, int squad, int team) {
+        if ( team == Constants.TEAM_AMERICANS ) {
+            for (Token token : this.americanTokens) {
+                if ( token.getType() == type && token.getSquad() == squad ) {
+                    return token;
+                }        
+            }
+        } else {
+            for (Token token : this.germanTokens) {
+                if ( token.getType() == type && token.getSquad() == squad ) {
+                    return token;
+                }        
+            }
+        }
+
+        return null;
     }
 
     public void printTokenInfo(int team) {
@@ -117,7 +148,8 @@ public class Game {
             System.out.println(" DEBUG: german win via points in a double pin");
             } else {
                 this.victory(this.initiative);
-            System.out.println(" DEBUG: " + this.initiative + " win via initiative in a double pin");
+            System.out.println( " DEBUG: " + Constants.teamName(this.initiative)
+            + " win via initiative in a double pin" );
             }
         } else {
             System.out.println(" DEBUG: no victor");
@@ -127,7 +159,7 @@ public class Game {
     public void pinCheck() {
         boolean foundRiflemen = false;
         for (Token token : this.americanTokens) {
-            if ( token.getType() == Constants.TYPE_NAMES[3]) {
+            if ( token.getType() == Constants.TYPE_NAMES[3] ) {
                 foundRiflemen = true;
                 break;
             }        
@@ -136,7 +168,7 @@ public class Game {
 
         foundRiflemen = false;
         for (Token token : this.germanTokens) {
-            if ( token.getType() == Constants.TYPE_NAMES[3]) {
+            if ( token.getType() == Constants.TYPE_NAMES[3] ) {
                 foundRiflemen = true;
                 break;
             }        
@@ -151,44 +183,45 @@ public class Game {
     private void readScenario(String scenarioString) {
         int sizeX, sizeY;
 
-        this.americanGoal = Integer.parseInt(scenarioString.substring(0,1));
-        this.germanGoal = Integer.parseInt(scenarioString.substring(1,2));
-        this.initiative = Integer.parseInt(scenarioString.substring(2,3));
-        sizeX = Integer.parseInt(scenarioString.substring(3,4));
-        sizeY = Integer.parseInt(scenarioString.substring(4,5));
+        this.americanGoal = Integer.parseInt(scenarioString.substring(0,2));
+        this.germanGoal = Integer.parseInt(scenarioString.substring(2,4));
+        this.initiative = Integer.parseInt(scenarioString.substring(4,5));
+        sizeX = Integer.parseInt(scenarioString.substring(5,6));
+        sizeY = Integer.parseInt(scenarioString.substring(6,7));
+        this.verticalLines = Integer.parseInt(scenarioString.substring(7,8)) == 1;
         this.field = new Field(sizeX,sizeY,this);
 
         for ( int t = 0; t < 2; t++ ) {
             for ( int i = 0; i < 2; i++ ) {
                 for ( int n = Integer.parseInt(
-                scenarioString.substring(5+(i*2)+(t*34),6+(i*2)+(t*34)) ); n > 0; n-- ) {
-                    (this.decks[t]).addCard(Constants.TYPE_NAMES[i]);
+                scenarioString.substring(8+(i*2)+(t*34),9+(i*2)+(t*34)) ); n > 0; n-- ) {
+                    (this.decks[t]).addCard(Constants.TYPE_NAMES[i],Constants.NO_SQUAD);
                 }
                 for ( int n = Integer.parseInt(
-                scenarioString.substring(6+(i*2)+(t*34),7+(i*2)+(t*34)) ); n > 0; n-- ) {
-                    (this.supplies[t]).addCard(Constants.TYPE_NAMES[i]);
+                scenarioString.substring(9+(i*2)+(t*34),10+(i*2)+(t*34)) ); n > 0; n-- ) {
+                    (this.supplies[t]).addCard(Constants.TYPE_NAMES[i],Constants.NO_SQUAD);
                 }
             }
             for ( int i = 0; i < 4; i++ ) {
                 for ( int s = 0; s < 3; s++ ) {
                     for ( int n = Integer.parseInt(
-                    scenarioString.substring(9+(s*2)+(i*6)+(t*34),10+(s*2)+(i*6)+(t*34)) ); n > 0; n-- ) {
+                    scenarioString.substring(12+(s*2)+(i*6)+(t*34),13+(s*2)+(i*6)+(t*34)) ); n > 0; n-- ) {
                         (this.decks[t]).addCard(Constants.TYPE_NAMES[2+i],s);
                     }
                     for ( int n = Integer.parseInt(
-                    scenarioString.substring(10+(s*2)+(i*6)+(t*34),11+(s*2)+(i*6)+(t*34)) ); n > 0; n-- ) {
+                    scenarioString.substring(13+(s*2)+(i*6)+(t*34),14+(s*2)+(i*6)+(t*34)) ); n > 0; n-- ) {
                         (this.supplies[t]).addCard(Constants.TYPE_NAMES[2+i],s);
                     }
                 }
             }
             for ( int i = 0; i < 3; i++ ) {
                 for ( int n = Integer.parseInt(
-                scenarioString.substring(33+(i*2)+(t*34),34+(i*2)+(t*34)) ); n > 0; n-- ) {
-                    (this.decks[t]).addCard(Constants.TYPE_NAMES[6+i]);
+                scenarioString.substring(36+(i*2)+(t*34),37+(i*2)+(t*34)) ); n > 0; n-- ) {
+                    (this.decks[t]).addCard(Constants.TYPE_NAMES[6+i],Constants.NO_SQUAD);
                 }
                 for ( int n = Integer.parseInt(
-                scenarioString.substring(34+(i*2)+(t*34),35+(i*2)+(t*34)) ); n > 0; n-- ) {
-                    (this.supplies[t]).addCard(Constants.TYPE_NAMES[6+i]);
+                scenarioString.substring(37+(i*2)+(t*34),38+(i*2)+(t*34)) ); n > 0; n-- ) {
+                    (this.supplies[t]).addCard(Constants.TYPE_NAMES[6+i],Constants.NO_SQUAD);
                 }
             }
         }
@@ -196,18 +229,18 @@ public class Game {
         for ( int y = 0; y < sizeY; y++ ) {
             for ( int x = 0; x < sizeX; x++ ) {
                 int armorValue = Integer.parseInt(
-                scenarioString.substring(73+(x*10)+(y*sizeX*10),74+(x*10)+(y*sizeX*10)) );
+                scenarioString.substring(76+(x*10)+(y*sizeX*10),77+(x*10)+(y*sizeX*10)) );
                 if ( armorValue != 9 ) {
                     int pointValue = Integer.parseInt(
-                    scenarioString.substring(74+(x*10)+(y*sizeX*10),75+(x*10)+(y*sizeX*10)) );
+                    scenarioString.substring(77+(x*10)+(y*sizeX*10),78+(x*10)+(y*sizeX*10)) );
                     int controlInfo = Integer.parseInt(
-                    scenarioString.substring(75+(x*10)+(y*sizeX*10),77+(x*10)+(y*sizeX*10)) );
+                    scenarioString.substring(78+(x*10)+(y*sizeX*10),80+(x*10)+(y*sizeX*10)) );
                     int spawnInfo = Integer.parseInt(
-                    scenarioString.substring(77+(x*10)+(y*sizeX*10),79+(x*10)+(y*sizeX*10)) );
+                    scenarioString.substring(80+(x*10)+(y*sizeX*10),82+(x*10)+(y*sizeX*10)) );
                     (this.field).addSquare(x, y, armorValue, pointValue, controlInfo, spawnInfo);
 
                     int tokenInfo = Integer.parseInt(
-                    scenarioString.substring(79+(x*10)+(y*sizeX*10),83+(x*10)+(y*sizeX*10)) );
+                    scenarioString.substring(82+(x*10)+(y*sizeX*10),86+(x*10)+(y*sizeX*10)) );
                     if ( tokenInfo > 1 ) {
                         if ( (tokenInfo>>11)%2 == 1 ) ((this.field).getSquare(x,y)).addToken
                             (tokenInfo%2,Constants.TYPE_NAMES[3],Constants.SQUAD_A);
@@ -228,65 +261,126 @@ public class Game {
                         if ( (tokenInfo>>3)%2 == 1 ) ((this.field).getSquare(x,y)).addToken
                             (tokenInfo%2,Constants.TYPE_NAMES[5],Constants.SQUAD_C);
                         if ( (tokenInfo>>2)%2 == 1 ) ((this.field).getSquare(x,y)).addToken
-                            (tokenInfo%2,Constants.TYPE_NAMES[6]);
+                            (tokenInfo%2,Constants.TYPE_NAMES[6],Constants.NO_SQUAD);
                         if ( (tokenInfo>>1)%2 == 1 ) ((this.field).getSquare(x,y)).addToken
-                            (tokenInfo%2,Constants.TYPE_NAMES[7]);
+                            (tokenInfo%2,Constants.TYPE_NAMES[7],Constants.NO_SQUAD);
                     }
                 }
             }
         }
     }
 
-    public void start() {
-        Scanner scanner = new Scanner(System.in);
+    private void turn(int team) {
+        String input;
+        Card card;
 
+        System.out.println("\n\n\n\n\nTurn: " + Constants.teamName(team) + "\n");
+
+        while ( this.victorDecided == false &&
+        (this.hands[team]).findNonType(Constants.TYPE_NAMES[8], Constants.NO_SQUAD) != null ) {
+            System.out.println();
+            this.hands[team].printInfo("hand");
+            this.playAreas[team].printInfo("play area");
+            this.supplies[0].printInfo("supplies");
+            this.supplies[1].printInfo("supplies");
+            this.field.printInfo();
+            this.printTokenInfo(0);
+            this.printTokenInfo(1);
+            System.out.println( "americans:" + this.americanScore + "/" + this.americanGoal );
+            System.out.println( "germans:" + this.germanScore + "/" + this.germanGoal );
+
+            System.out.println("\nDo you want to end the turn early? y/n");
+            input = this.scanner.nextLine();
+            if ( input.length() == 1 && input.charAt(0) == 'y' ) {
+                break;
+            } else {
+                card = (this.hands[team]).chooseCard("hand");
+                card.pickAction();
+            }
+        }
+        (this.discards[team]).allPlayAreaToDiscard(team);
+        (this.discards[team]).allHandToDiscard(team);
+
+        // System.out.println();
+        // // this.decks[0].printInfo("deck");
+        // this.supplies[0].printInfo("supplies");
+        // // this.decks[1].printInfo("deck");
+        // this.supplies[1].printInfo("supplies");
+        // this.field.printInfo();
+        // this.printTokenInfo(0);
+        // this.printTokenInfo(1);
+        // System.out.println( "americans:" + this.americanScore + "/" + this.americanGoal );
+        // System.out.println( "germans:" + this.germanScore + "/" + this.germanGoal );
+        // // this.hands[0].printInfo("hand");
+        // // this.playAreas[0].printInfo("play area");
+    }
+
+    private void round() {
+        Card chosenInitiativeCards[] = new Card[2];
+
+        System.out.println( "\n\n\n\n\nInitiative: " + Constants.teamName(this.initiative) + "\n" );
+
+        for ( int i = 0; i < 2; i++ ) {
+            (this.hands[i]).randomDeckToHand(i);
+            (this.hands[i]).randomDeckToHand(i);
+            (this.hands[i]).randomDeckToHand(i);
+            (this.hands[i]).randomDeckToHand(i);
+            chosenInitiativeCards[i] = (this.hands[i]).chooseCard("hand", true);
+            (this.discards[i]).handToDiscard(i,chosenInitiativeCards[i]);
+        }
+
+        if ( chosenInitiativeCards[this.initiative].getInitiative() < 
+        chosenInitiativeCards[Constants.otherTeam(this.initiative)].getInitiative() ) {
+            this.initiative = Constants.otherTeam(this.initiative);
+        }
+
+        if (this.victorDecided == false) this.turn(this.initiative);
+        if (this.victorDecided == false) this.turn(Constants.otherTeam(this.initiative));
+    }
+
+    public void start() {
         System.out.println("Pick a scenario 1-" + Constants.NUMBER_OF_SCENARIOS);
         while(true) {
-            if ( scanner.hasNextInt() ) {
-                this.scenarioNumber = scanner.nextInt();
+            if ( this.scanner.hasNextInt() ) {
+                this.scenarioNumber = this.scanner.nextInt();
                 if ( this.scenarioNumber >= 1 && this.scenarioNumber <= Constants.NUMBER_OF_SCENARIOS ) {
                     break;
                 } else {
                     System.out.println("Not a valid number");
-                    scanner.nextLine();
+                    this.scanner.nextLine();
                 }
             } else {
                 System.out.println("Not a number");
-                scanner.nextLine();
+                this.scanner.nextLine();
             }
         }
+        this.scanner.nextLine();//nuzhno
 
         this.readScenario(Constants.SCENARIOS[this.scenarioNumber-1]);
+        this.victorDecided = false;
 
-        // while(this.victorDecided == false) {
-        //     this.round();
-        // }
-
-        this.decks[0].printInfo();
-        this.supplies[0].printInfo();
-        this.decks[1].printInfo();
-        this.supplies[1].printInfo();
+        System.out.println("\n\n\n\n\nstart\n");
+        // this.decks[0].printInfo("deck");
+        this.supplies[0].printInfo("supplies");
+        // this.decks[1].printInfo("deck");
+        this.supplies[1].printInfo("supplies");
         this.field.printInfo();
         this.printTokenInfo(0);
         this.printTokenInfo(1);
-
-        this.americanScore = 4;
-        this.germanScore = 6;
-
-        this.pinCheck();
-        this.winCheck();
         System.out.println( "americans:" + this.americanScore + "/" + this.americanGoal );
         System.out.println( "germans:" + this.germanScore + "/" + this.germanGoal );
+        // this.hands[0].printInfo("hand");
+        // this.playAreas[0].printInfo("play area");
 
-        System.out.print("victory of team: ");
+        while(this.victorDecided == false) {
+            this.round();
+        }
+
+        System.out.print("\n\n\n\n\n\n\n\n\n\nvictory of team: ");
         if (this.americansWon) {
-            System.out.println("US");
+            System.out.println("US\n\n");
         } else {
-            System.out.println("Reich");
+            System.out.println("Reich\n\n");
         }
     }
-
-    // private void round(int team) {
-    //     int turn;
-    // }
 }

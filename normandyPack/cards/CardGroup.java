@@ -1,4 +1,5 @@
 package normandyPack.cards;
+import java.util.Scanner;
 import java.util.ArrayList;
 import java.lang.Math;
 import normandyPack.board.*;
@@ -7,6 +8,8 @@ import normandyPack.game.*;
 import normandyPack.constantValues.*;
 
 public class CardGroup {
+    Scanner scanner = new Scanner(System.in);
+    //
     private int team;
     private ArrayList<Card> cards;
     private Game game;
@@ -27,11 +30,65 @@ public class CardGroup {
         return this.game;
     }
 
-    public void addCard(String name) {
-        (this.cards).add(new Card(name, this));
+    public Card chooseCard(String name) {
+        return this.chooseCard(name, false);
     }
+    public Card chooseCard(String name, boolean printInitiative) {
+        int index, groupSize = (this.cards).size();
+
+        this.printInfo(name, printInitiative);
+        if ( groupSize > 0 ) {
+            while(true) {
+                System.out.println( "Pick a card (index)" );
+                if ( this.scanner.hasNextInt() ) {
+                    index = this.scanner.nextInt();
+                    if ( index >= 1 && index <= groupSize ) {
+                        break;
+                    } else {
+                        System.out.println("Not a valid number");
+                        this.scanner.nextLine();
+                    }
+                } else {
+                    System.out.println("Not a number");
+                    this.scanner.nextLine();
+                }
+            }
+            this.scanner.nextLine();//nuzhno(?)
+            return (this.cards).get(index-1);
+        }
+        return null;
+    }
+
     public void addCard(String name, int squad) {
-        (this.cards).add(new Card(name, squad, this));
+        switch (name) {
+            case ("Platoon Sergeant"):
+                (this.cards).add(new CardPlatoonSergeant(name, squad, this));
+                break;
+            case ("Platoon Guide"):
+                (this.cards).add(new CardPlatoonGuide(name, squad, this));
+                break;
+            case ("Squad Leader"):
+                (this.cards).add(new CardSquadLeader(name, squad, this));
+                break;
+            case ("Rifleman"):
+                (this.cards).add(new CardRifleman(name, squad, this));
+                break;
+            case ("Scout"):
+                (this.cards).add(new CardScout(name, squad, this));
+                break;
+            case ("Machine Gunner"):
+                (this.cards).add(new CardMachineGunner(name, squad, this));
+                break;
+            case ("Mortar"):
+                (this.cards).add(new CardMortar(name, squad, this));
+                break;
+            case ("Sniper"):
+                (this.cards).add(new CardSniper(name, squad, this));
+                break;
+            case ("Fog of War"):
+                (this.cards).add(new CardFogOfWar(name, squad, this));
+                break;
+        }
     }
     public void addCard(Card card) {
         (this.cards).add(card);
@@ -45,6 +102,8 @@ public class CardGroup {
         CardGroup discard = (this.game).getDiscard(team);
         if ( !(discard.getCards()).isEmpty() ) {
             Card card;
+
+            System.out.println("sent discard to deck");
             for ( int i = (discard.getCards()).size(); i > 0; i-- ) {
                 card = (discard.getCards()).get(0);
                 discard.deleteCard(card);
@@ -58,9 +117,13 @@ public class CardGroup {
         if ( (deck.getCards()).isEmpty() ) {
             deck.allDiscardToDeck(team);
         }
-        Card card = (deck.getCards()).get( (int) (Math.random() * (deck.getCards()).size()) );
-        deck.deleteCard(card);
-        this.addCard(card);
+        if ( !(deck.getCards()).isEmpty() ) {
+            Card card = (deck.getCards()).get( (int) (Math.random() * (deck.getCards()).size()) );
+            deck.deleteCard(card);
+            this.addCard(card);
+        } else {
+            System.out.println("HUIHUIHUI");
+        }
     }
     public void handToDiscard(int team, Card card) {
         CardGroup hand = (this.game).getHand(team);
@@ -112,11 +175,32 @@ public class CardGroup {
         }
     }
 
-    public void printInfo() {
+    public Card findType(String name, int squad) {
+        for (Card card : this.cards) {
+            if ( card.getName() == name && card.getSquad() == squad ) {
+                return card;
+            }        
+        }
+        return null;
+    }
+    public Card findNonType(String name, int squad) {
+        for (Card card : this.cards) {
+            if ( card.getName() != name || card.getSquad() != squad ) {
+                return card;
+            }        
+        }
+        return null;
+    }
+
+    public void printInfo(String name) {
+        this.printInfo(name, false);
+    }
+    public void printInfo(String name, boolean printInitiative) {
+        System.out.print( "Cards in " + name + " (team " + Constants.teamName(this.team) + "): " );
         for (Card card : this.cards) {
             System.out.print( card.getName() );
             switch ( card.getSquad() ) {
-                case (-1):
+                case (Constants.NO_SQUAD):
                     break;
                 case (Constants.SQUAD_A):
                     System.out.print(" A");
@@ -128,8 +212,9 @@ public class CardGroup {
                     System.out.print(" C");
                     break;
             }
+            if (printInitiative) System.out.print( " I:" + card.getInitiative() );
             System.out.print(", ");
         }
-        System.out.print("stop\n");
+        System.out.print("end\n");
     }
 }

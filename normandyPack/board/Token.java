@@ -6,40 +6,40 @@ import normandyPack.constantValues.*;
 
 
 public class Token {
-    private int xCoord, yCoord, team, squad;
+    private int team, squad, armor;
     private boolean suppressed;
     private String type;
-    private Square square;
+    private Square square, mortarTarget;
 
-    public Token(int xCoord, int yCoord, int team, String type, Square square) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        this.team = team;
-        this.type = type;
-        this.squad = -1;
-        this.suppressed = false;
-        this.square = square;
-
-        (((this.square).getField()).getGame()).addToken(this, this.team);
-    }
-    public Token(int xCoord, int yCoord, int team, String type, int squad, Square square) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
+    public Token(int team, String type, int squad, Square square) {
         this.team = team;
         this.type = type;
         this.squad = squad;
         this.suppressed = false;
         this.square = square;
+        this.mortarTarget = null;
+
+        switch (type) {
+            case ("Rifleman"):
+                this.armor = 4;
+                break;
+            case ("Scout"):
+                this.armor = 5;
+                break;
+            case ("Machine Gunner"):
+                this.armor = 4;
+                break;
+            case ("Mortar"):
+                this.armor = 4;
+                break;
+            case ("Sniper"):
+                this.armor = 6;
+                break;
+        }
 
         (((this.square).getField()).getGame()).addToken(this, this.team);
     }
 
-    public int getX() {
-        return this.xCoord;
-    }
-    public int getY() {
-        return this.yCoord;
-    }
     public int getTeam() {
         return this.team;
     }
@@ -49,32 +49,45 @@ public class Token {
     public int getSquad() {
         return this.squad;
     }
+    public int getArmor() {
+        return this.armor;
+    }
     public boolean getSuppressed() {
         return this.suppressed;
     }
     public Square getSquare() {
         return this.square;
     }
+    public Square getMortarTarget() {
+        return this.mortarTarget;
+    }
 
     public void setSquare(Square square) {
         this.square = square;
     }
+    public void setMortarTarget(Square mortarTarget) {
+        this.mortarTarget = mortarTarget;
+    }
+    public void setSuppressed(boolean suppressing) {
+        this.suppressed = suppressing;
+    }
 
-    // public void move(Square square) {
-    //     (this.square).deleteToken(this);
-    //     square.addToken(this);
-    // }
+    public void moveTo(Square square) {
+        (this.square).deleteToken(this);
+        square.addToken(this);
+    }
     public void deletDis() {
         (this.square).deleteToken(this);
         (((this.square).getField()).getGame()).deleteToken(this, this.team);
+        (((this.square).getField()).getGame()).pinCheck();
     }
 
     public void printInfo() {
-        System.out.print("at:(" + this.getX() + "," + this.getY() + ")");
-        System.out.print( " " + this.getTeam() + "\'s " );
-        System.out.print( this.getType() );
-        switch ( this.getSquad() ) {
-            case (-1):
+        System.out.print("at:(" + (this.square).getX() + "," + (this.square).getY() + ")");
+        System.out.print( " " + Constants.teamName(this.team) + " " );
+        System.out.print( this.type );
+        switch ( this.squad ) {
+            case (Constants.NO_SQUAD):
                 break;
             case (Constants.SQUAD_A):
                 System.out.print(" A");
