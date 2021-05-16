@@ -12,9 +12,12 @@ def endpoint(conn, q):
 
                 if ident == id(conn):
                     q.put((mess, ident))
-                    time.sleep(0.5)
+                    time.sleep(0.1)
                     continue
 
+                if mess == '__close_connection':
+                    return
+        
                 try:
                     helpers.send_message(conn, mess + SEPERATOR)
                 except ConnectionAbortedError as err:

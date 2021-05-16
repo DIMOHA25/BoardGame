@@ -67,6 +67,7 @@ public class Client {
     }
 
     public void close() throws IOException {
+        this.send("__close_connection");
         reader.close();
         sender.close();
         connection.close();
