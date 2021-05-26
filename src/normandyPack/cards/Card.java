@@ -1,15 +1,16 @@
 package normandyPack.cards;
-import java.util.Scanner;
+import normandyPack.board.Square;
+import normandyPack.board.Token;
+import normandyPack.constantValues.Constants;
+
 import java.util.ArrayList;
-import java.lang.Math;
-import normandyPack.board.*;
-import normandyPack.cards.*;
-import normandyPack.game.*;
-import normandyPack.constantValues.*;
+import java.util.Scanner;
 
 abstract public class Card {
     Scanner scanner = new Scanner(System.in);
-    //
+
+    //protected Image backImage;
+    //protected Image faceImage;
     protected String name;
     protected int squad, initiative, team;
     protected CardGroup cardGroup;

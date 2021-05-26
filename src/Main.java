@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("fxmlFiles/start.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("sample/fxmlFiles/start.fxml"));
             primaryStage.setTitle("Undaunted: Normandy");
             primaryStage.setScene(new Scene(root, 610, 877));
             primaryStage.setResizable(false);
