@@ -2,7 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
@@ -11,88 +12,109 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="mainBox" alignment="BOTTOM_CENTER" maxHeight="-Infinity"
-      maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1080.0"
-      style="-fx-background-color: #455B66;" xmlns="http://javafx.com/javafx/15.0.1">
+<VBox fx:id="mainBox" alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1080.0" style="-fx-background-color: #455B66;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <BorderPane fx:id="fieldPane" prefHeight="480.0" prefWidth="1080.0">
-         <left>
-            <FlowPane alignment="CENTER" columnHalignment="CENTER" prefHeight="200.0" prefWidth="200.0"
-                      rowValignment="TOP" BorderPane.alignment="CENTER"/>
-         </left>
-         <right>
-            <Slider cacheShape="false" orientation="VERTICAL" prefHeight="440.0" prefWidth="14.0" scaleShape="false"
-                    BorderPane.alignment="CENTER"/>
-         </right>
-      </BorderPane>
-      <BorderPane fx:id="playerZone" prefHeight="240.0" prefWidth="1080.0"
-                  style="-fx-background-radius: 25; -fx-background-color: #623317;">
-         <left>
-            <FlowPane nodeOrientation="LEFT_TO_RIGHT" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0"
-                      vgap="15.0" BorderPane.alignment="CENTER">
+         <center>
+            <GridPane BorderPane.alignment="CENTER">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
                <children>
-                  <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0"
-                          style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;"
-                          text="DECK" textFill="#eceff1">
+                  <FlowPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <VBox alignment="TOP_CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="120.0" prefWidth="100.0" style="-fx-background-image: url('gui/field.png');;">
+                           <children>
+                              <FlowPane prefHeight="40.0" prefWidth="100.0" />
+                              <ImageView fitHeight="40.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@gui/sniperpin.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </VBox>
+                     </children>
+                  </FlowPane>
+                  <FlowPane alignment="TOP_CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+         </center>
+      </BorderPane>
+      <BorderPane fx:id="playerZone" prefHeight="240.0" prefWidth="1080.0" style="-fx-background-radius: 25px 25px 0px 0px; -fx-background-color: #623317;">
+         <left>
+            <FlowPane nodeOrientation="LEFT_TO_RIGHT" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" vgap="15.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="myDeckButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;" text="DECK" textFill="#eceff1">
                      <font>
-                        <Font name="Impact" size="18.0"/>
+                        <Font name="Impact" size="18.0" />
                      </font>
                   </Button>
-                  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0"
-                          style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;"
-                          text="DISCHARGE" textFill="#eceff1">
+                  <Button fx:id="myDischarge" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;" text="DISCHARGE" textFill="#eceff1">
                      <font>
-                        <Font name="Impact" size="18.0"/>
+                        <Font name="Impact" size="18.0" />
                      </font>
                   </Button>
-                  <Button layoutX="10.0" layoutY="65.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0"
-                          style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;"
-                          text="SUPPLY" textFill="#eceff1">
+                  <Button layoutX="10.0" layoutY="65.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;" text="SUPPLY" textFill="#eceff1">
                      <font>
-                        <Font name="Impact" size="18.0"/>
+                        <Font name="Impact" size="18.0" />
                      </font>
                   </Button>
                </children>
                <BorderPane.margin>
-                  <Insets bottom="15.0" left="5.0" top="15.0"/>
+                  <Insets bottom="15.0" left="5.0" top="15.0" />
                </BorderPane.margin>
             </FlowPane>
          </left>
          <right>
-            <FlowPane nodeOrientation="RIGHT_TO_LEFT" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0"
-                      BorderPane.alignment="CENTER">
+            <FlowPane nodeOrientation="RIGHT_TO_LEFT" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <BorderPane.margin>
-                  <Insets bottom="15.0" right="5.0" top="15.0"/>
+                  <Insets bottom="15.0" right="5.0" top="15.0" />
                </BorderPane.margin>
                <children>
-                  <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0"
-                          style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;"
-                          text="DECK" textFill="#eceff1">
+                  <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-border-color: #546e7a; -fx-background-color: linear-gradient(to bottom, #90a4ae 0%, #78909c 100%); -fx-background-radius: 15; -fx-border-radius: 15;" text="DECK" textFill="#eceff1">
                      <font>
-                        <Font name="Impact" size="18.0"/>
+                        <Font name="Impact" size="18.0" />
                      </font>
                   </Button>
                </children>
             </FlowPane>
          </right>
          <center>
-            <GridPane hgap="5.0" BorderPane.alignment="CENTER">
+            <GridPane hgap="5.0" prefHeight="240.0" prefWidth="659.0" BorderPane.alignment="CENTER">
                <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                </columnConstraints>
                <rowConstraints>
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
+               <children>
+                  <VBox fx:id="Card0" alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <FlowPane prefHeight="80.0" prefWidth="164.0">
+                           <children>
+                              <Button mnemonicParsing="false" text="Button" />
+                              <Button mnemonicParsing="false" text="Button" />
+                              <Button mnemonicParsing="false" text="Button" />
+                              <Button mnemonicParsing="false" text="Button" />
+                           </children>
+                        </FlowPane>
+                     </children>
+                  </VBox>
+               </children>
             </GridPane>
          </center>
       </BorderPane>
    </children>
    <opaqueInsets>
-      <Insets/>
+      <Insets />
    </opaqueInsets>
 </VBox>

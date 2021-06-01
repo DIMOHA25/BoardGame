@@ -1,10 +1,12 @@
 package sample;
 
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -14,9 +16,10 @@ import java.io.IOException;
 
 public class GameController {
 
+    @FXML private VBox card0;
     private Stage gameStage;
     private VBox mainBox;
-    private BorderPane fieldPane;
+    private GridPane fieldPane;
     private BorderPane playerZone;
     Color NORMANDY_BLUE = new Color(0.25, 0.34, 0.38, 1);
     Color ENEMY_RED = new Color(0.95, 0.31, 0.11, 1);
@@ -47,12 +50,12 @@ public class GameController {
     private void setUI() {
         mainBox = new VBox();
         mainBox.setAlignment(Pos.BOTTOM_CENTER);
-        mainBox.setStyle("-fx-background-color:  #455B66");
+        mainBox.setStyle("-fx-background-color: #455B66");
         mainBox.setVisible(true);
 
         playerZone = new BorderPane();
-        playerZone.setStyle("-fx-background-color: #623317");
-        playerZone.setStyle("-fx-background-radius: 25px 25px 0px 0px");
+        playerZone.setStyle("-fx-background-color: 000000");
+        playerZone.setStyle("-fx-background-radius: 50");
         playerZone.setMinSize(1080,240);
         mainBox.getChildren().add(playerZone);
 
