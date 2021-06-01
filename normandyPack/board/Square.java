@@ -5,10 +5,11 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class Square {
     private int xCoord, yCoord, armor, points, levelOfControl[] = {0,0};
-    //                       A,    B,    C, Mortar,Snipers
+    //                             A,    B,    C, Mortar,Snipers
     private boolean spawns[][] = {{false,false,false,false,false},{false,false,false,false,false}};
     private Field field;
     private ArrayList<Token> tokensInside;
@@ -49,6 +50,9 @@ public class Square {
     }
     public int getLevelOfControl(int team) {
         return this.levelOfControl[team];
+    }
+    public int getPoints() {
+        return this.points;
     }
     public int getRawArmor() {
         return this.armor;
@@ -105,10 +109,10 @@ public class Square {
                 this.levelOfControl[Constants.otherTeam(teamOfController)] = 1;
                 switch (teamOfController) {
                     case (Constants.TEAM_AMERICANS):
-                        ((this.field).getGame()).addToAmericanScore(-this.points);
+                        ((this.field).getGame()).addToGermanScore(-this.points);
                         break;
                     case (Constants.TEAM_GERMANS):
-                        ((this.field).getGame()).addToGermanScore(-this.points);
+                        ((this.field).getGame()).addToAmericanScore(-this.points);
                         break;
                 }
             }

@@ -3,6 +3,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class CardMachineGunner extends Card {
     public CardMachineGunner(String name, int squad, CardGroup cardGroup) {
@@ -13,7 +14,7 @@ public class CardMachineGunner extends Card {
         this.team = (this.cardGroup).getTeam();
     }
 
-    public void pickAction() {
+    public void pickAction(Bot bot) {
         int choice;
         boolean success = false, tokenExists, suppressed = false;
         Token token;
@@ -22,65 +23,112 @@ public class CardMachineGunner extends Card {
         tokenExists = token != null;
         if (tokenExists) suppressed = token.getSuppressed();
 
-        System.out.print( "(" + Constants.teamName(this.team) + ", " + this.name );
-        switch ( this.squad ) {
-            case (Constants.NO_SQUAD):
-                break;
-            case (Constants.SQUAD_A):
-                System.out.print(" A");
-                break;
-            case (Constants.SQUAD_B):
-                System.out.print(" B");
-                break;
-            case (Constants.SQUAD_C):
-                System.out.print(" C");
-                break;
-        }
-        System.out.print( ") Enter:\n" );
-        System.out.println("1 to hunker down,");
-        if (suppressed) {
-            System.out.println("2 to unsuppress");
-        } else {
-            System.out.println("2 to move(1),");
-            System.out.println("3 to attack(2),");
-            System.out.println("4 to suppress(4)");
-        }
-
-        while(true) {
-            if ( this.scanner.hasNextInt() ) {
-                choice = this.scanner.nextInt();
-                break;
-            } else {
-                System.out.println("Not a number");
-                this.scanner.nextLine();
+        if (bot == null) {
+            System.out.print( "(" + Constants.teamName(this.team) + ", " + this.name );
+            switch ( this.squad ) {
+                case (Constants.NO_SQUAD):
+                    break;
+                case (Constants.SQUAD_A):
+                    System.out.print(" A");
+                    break;
+                case (Constants.SQUAD_B):
+                    System.out.print(" B");
+                    break;
+                case (Constants.SQUAD_C):
+                    System.out.print(" C");
+                    break;
             }
-        }
-        this.scanner.nextLine();//nuzhno(?)
+            System.out.print( ") Enter:\n" );
+            System.out.println("1 to hunker down,");
+            if (suppressed) {
+                System.out.println("2 to unsuppress");
+            } else {
+                System.out.println("2 to move(1),");
+                System.out.println("3 to attack(2),");
+                System.out.println("4 to suppress(4)");
+            }
 
-        switch (choice) {
-            case (1):
+            while(true) {
+                if ( this.scanner.hasNextInt() ) {
+                    choice = this.scanner.nextInt();
+                    break;
+                } else {
+                    System.out.println("Not a number");
+                    this.scanner.nextLine();
+                }
+            }
+            this.scanner.nextLine();//nuzhno(?)
+
+            switch (choice) {
+                case (1):
+                    this.hunkerDown();
+                    break;
+                case (2):
+                    if (suppressed) this.unsuppress(token);
+                    if (suppressed) this.playCard();
+                    if (!tokenExists) token = this.placeToken();
+                    if (!suppressed) success = this.move(1,token,bot);
+                    if (!suppressed && success) this.playCard();
+                    if (!tokenExists && !success) token.deletDis();
+                    break;
+                case (3):
+                    if (!tokenExists) token = this.placeToken();
+                    if (!suppressed) success = this.attack(2,token,bot);
+                    if (!suppressed && success) this.playCard();
+                    if (!tokenExists && !success) token.deletDis();
+                    break;
+                case (4):
+                    if (!tokenExists) token = this.placeToken();
+                    if (!suppressed) success = this.suppress(4,token,bot);
+                    if (!suppressed && success) this.playCard();
+                    if (!tokenExists && !success) token.deletDis();
+                    break;
+            }
+        } else {
+            String choices = bot.getOutput();
+            boolean willHunker = Integer.parseInt(choices.substring(35,36)) == 1;
+            boolean willMove = Integer.parseInt(choices.substring(36,37)) == 1;
+            boolean willAttack = Integer.parseInt(choices.substring(40,41)) == 1;
+            boolean willSuppress = Integer.parseInt(choices.substring(41,42)) == 1;
+
+            if ( willHunker ) { 
                 this.hunkerDown();
-                break;
-            case (2):
-                if (suppressed) this.unsuppress(token);
-                if (suppressed) this.playCard();
+                System.out.println( bot.getName() + ": successfully hunkered down" );
+                return;
+            }
+            if ( willMove || willAttack || willSuppress ) {
+                if ( suppressed ) {
+                    this.unsuppress(token);
+                    this.playCard();
+                    System.out.println( bot.getName() + ": successfully unsuppressed" );
+                    return;
+                }
                 if (!tokenExists) token = this.placeToken();
-                if (!suppressed) success = this.move(1,token);
-                if (!suppressed && success) this.playCard();
+
+                if (willMove) {
+                    success = this.move(1,token,bot);
+                    System.out.println( bot.getName() + ": tried moving" );
+                } else if (willAttack) {
+                    success = this.attack(2,token,bot);
+                    System.out.println( bot.getName() + ": tried attacking" );
+                } else {
+                    success = this.suppress(4,token,bot);
+                    System.out.println( bot.getName() + ": tried suppressing" );
+                }
+
                 if (!tokenExists && !success) token.deletDis();
-                break;
-            case (3):
-                if (!tokenExists) token = this.placeToken();
-                if (!suppressed) success = this.attack(2,token);
-                if (!suppressed && success) this.playCard();
-                if (!tokenExists && !success) token.deletDis();
-                break;
-            case (4):
-                if (!tokenExists) token = this.placeToken();
-                if (!suppressed) success = this.suppress(4,token);
-                if (!suppressed && success) this.playCard();
-                if (!tokenExists && !success) token.deletDis();
-                break;
+                if (success) {
+                    this.playCard();
+                    System.out.println( bot.getName() + ": success" );
+                }
+                else {
+                    System.out.println( bot.getName() + ": failure" );
+                    //tut nado dat pizdi botu 
+                }
+            } else {
+                System.out.println( bot.getName() + ": was too dumb to pick an action" );
+                //tut nado dat pizdi botu 
+            }
         }
     }
 }

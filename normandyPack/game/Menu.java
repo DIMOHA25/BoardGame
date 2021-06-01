@@ -4,6 +4,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class Menu {
     public Menu() {

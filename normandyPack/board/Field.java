@@ -3,6 +3,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class Field {
     private Square grid[][];
@@ -82,5 +83,57 @@ public class Field {
                 }
             }
         }
+    }
+
+    public String getBotInfo(int team) {
+        String output = "";
+
+        for ( int y = 0; y < ySize; y++ ) {
+            for ( int x = 0; x < xSize; x++ ) {
+                if ( this.grid[y][x] != null ) {
+                    output += (this.grid[y][x]).getRawArmor();
+                    output += (this.grid[y][x]).getPoints();
+                    output += (this.grid[y][x]).getLevelOfControl(Constants.otherTeam(team));
+                    output += (this.grid[y][x]).getLevelOfControl(team);
+                } else output += "9999";
+            }
+            for ( int x = xSize; x < 6; x++ ) {
+                output += "9999";
+            }
+        }
+        for ( int y = ySize; y < 7; y++ ) {
+            for ( int x = 0; x < 6; x++ ) {
+                output += "9999";
+            }
+        }
+
+        return output;
+    }
+    public String getBotSpawns(int team) {
+        String output = "";
+        int[] xCoords = {9,9,9,9,9};
+        int[] yCoords = {9,9,9,9,9};
+        boolean[][] spawnsBuffer;
+
+        for ( int y = 0; y < ySize; y++ ) {
+            for ( int x = 0; x < xSize; x++ ) {
+                if ( this.grid[y][x] != null ) {
+                    spawnsBuffer = (this.grid[y][x]).getSpawns();
+                    for ( int i = 0; i < 5; i++ ) {
+                        if (spawnsBuffer[team][i] == true) {
+                            xCoords[i] = x;
+                            yCoords[i] = y;
+                        }
+                    }
+                }
+            }
+        }
+
+        for ( int i = 0; i < 5; i++ ) {
+            output += xCoords[i];
+            output += yCoords[i];
+        }
+
+        return output;
     }
 }

@@ -3,6 +3,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 
 public class Token {
@@ -98,6 +99,10 @@ public class Token {
             case (Constants.SQUAD_C):
                 System.out.print(" C");
                 break;
+        }
+        if (this.mortarTarget != null) {
+            System.out.print(" targeting:(" + (this.mortarTarget).getX() + ","
+            + (this.mortarTarget).getY() + ")");
         }
         System.out.print("\n");
     }

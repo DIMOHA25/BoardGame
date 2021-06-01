@@ -6,6 +6,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class CardGroup {
     Scanner scanner = new Scanner(System.in);
@@ -175,6 +176,15 @@ public class CardGroup {
         }
     }
 
+    public int findTypeCount(String name, int squad) {
+        int count = 0;
+        for (Card card : this.cards) {
+            if ( card.getName() == name && card.getSquad() == squad ) {
+                count += 1;
+            }        
+        }
+        return count;
+    }
     public Card findType(String name, int squad) {
         for (Card card : this.cards) {
             if ( card.getName() == name && card.getSquad() == squad ) {
@@ -198,20 +208,7 @@ public class CardGroup {
     public void printInfo(String name, boolean printInitiative) {
         System.out.print( "Cards in " + name + " (team " + Constants.teamName(this.team) + "): " );
         for (Card card : this.cards) {
-            System.out.print( card.getName() );
-            switch ( card.getSquad() ) {
-                case (Constants.NO_SQUAD):
-                    break;
-                case (Constants.SQUAD_A):
-                    System.out.print(" A");
-                    break;
-                case (Constants.SQUAD_B):
-                    System.out.print(" B");
-                    break;
-                case (Constants.SQUAD_C):
-                    System.out.print(" C");
-                    break;
-            }
+            System.out.print( card.getInfoString() );
             if (printInitiative) System.out.print( " I:" + card.getInitiative() );
             System.out.print(", ");
         }

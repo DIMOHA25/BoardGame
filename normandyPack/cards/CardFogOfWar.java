@@ -3,6 +3,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class CardFogOfWar extends Card {
     public CardFogOfWar(String name, int squad, CardGroup cardGroup) {
@@ -13,7 +14,7 @@ public class CardFogOfWar extends Card {
         this.team = (this.cardGroup).getTeam();
     }
 
-    public void pickAction() {
+    public void pickAction(Bot bot) {
         System.out.println("No actions!!!(FoW)");
     }
 }

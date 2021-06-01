@@ -6,6 +6,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 abstract public class Card {
     Scanner scanner = new Scanner(System.in);
@@ -31,6 +32,24 @@ abstract public class Card {
     }
     public int getSquad() {
         return this.squad;
+    }
+    public String getInfoString() {
+        String ouput = "";
+        ouput += this.name;
+        switch (this.squad) {
+            case (Constants.NO_SQUAD):
+                break;
+            case (Constants.SQUAD_A):
+                ouput += " A";
+                break;
+            case (Constants.SQUAD_B):
+                ouput += " B";
+                break;
+            case (Constants.SQUAD_C):
+                ouput += " C";
+                break;
+        }
+        return ouput;
     }
     public int getTeam() {
         return this.team;
@@ -116,51 +135,66 @@ abstract public class Card {
         token.setSuppressed(false);
     }
 
-    protected boolean stalk(int distance, Token executor) {
+    protected boolean stalk(int distance, Token executor, Bot bot) {
         String input;
         Square targetSquare;
         int x, y;
         boolean moved = false;
 
         for ( int i = 0; i < distance; ) {
-            System.out.println("Do you want to end the move early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the move early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
 
-            x = this.enterAnyInt("x coordinate of target square");
-            y = this.enterAnyInt("y coordinate of target square");
+                x = this.enterAnyInt("x coordinate of target square");
+                y = this.enterAnyInt("y coordinate of target square");
+            } else {
+                int[] coords = bot.targetSquare();
+                x = coords[0];
+                y = coords[1];
+            }
 
             targetSquare = (((this.cardGroup).getGame()).getField()).getSquare(x,y);
             if (targetSquare == null) {
                 System.out.println("Invalid square");
+                if (bot != null) break;
             } else if ( targetSquare.measureDistanceTo(executor.getSquare()) == 1 ) {
                 executor.moveTo(targetSquare);
                 moved = true;
                 i++;
             } else {
                 System.out.println("Square too far or the same");
+                if (bot != null) break;
             }
         }
 
         return moved;
     }
-    protected boolean move(int distance, Token executor) {
+    protected boolean move(int distance, Token executor, Bot bot) {
         String input;
         Square targetSquare;
         int x, y;
         boolean moved = false;
 
         for ( int i = 0; i < distance; ) {
-            System.out.println("Do you want to end the move early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the move early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
 
-            x = this.enterAnyInt("x coordinate of target square");
-            y = this.enterAnyInt("y coordinate of target square");
+                x = this.enterAnyInt("x coordinate of target square");
+                y = this.enterAnyInt("y coordinate of target square");
+            } else {
+                int[] coords = bot.targetSquare();
+                x = coords[0];
+                y = coords[1];
+            }
 
             targetSquare = (((this.cardGroup).getGame()).getField()).getSquare(x,y);
             if (targetSquare == null) {
                 System.out.println("Invalid square");
+                if (bot != null) break;
             } else if ( targetSquare.measureDistanceTo(executor.getSquare()) == 1 &&
             targetSquare.getLevelOfControl( executor.getTeam() ) > 0 ) {
                 executor.moveTo(targetSquare);
@@ -169,12 +203,13 @@ abstract public class Card {
                 i++;
             } else {
                 System.out.println("Square too far, the same or not scouted/controlled");
+                if (bot != null) break;
             }
         }
 
         return moved;
     }
-    protected boolean scout(int distance, Token executor) {
+    protected boolean scout(int distance, Token executor, Bot bot) {
         String input;
         Square targetSquare;
         int x, y;
@@ -185,16 +220,25 @@ abstract public class Card {
         Card fogInSupply;
 
         for ( int i = 0; i < distance; ) {
-            System.out.println("Do you want to end the move early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the move early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
 
-            x = this.enterAnyInt("x coordinate of target square");
-            y = this.enterAnyInt("y coordinate of target square");
+                x = this.enterAnyInt("x coordinate of target square");
+                y = this.enterAnyInt("y coordinate of target square");
+            } else {
+                if ( i > 0 && bot.actionSkip() ) break;
+
+                int[] coords = bot.targetSquare();
+                x = coords[0];
+                y = coords[1];
+            }
 
             targetSquare = (((this.cardGroup).getGame()).getField()).getSquare(x,y);
             if (targetSquare == null) {
                 System.out.println("Invalid square");
+                if (bot != null) break;
             } else if ( targetSquare.measureDistanceTo(executor.getSquare()) == 1 ) {
                 executor.moveTo(targetSquare);
                 moved = true;
@@ -203,15 +247,17 @@ abstract public class Card {
                     fogInSupply = supply.findType(Constants.TYPE_NAMES[8], Constants.NO_SQUAD);
                     if (fogInSupply != null) discard.supplyToDiscard(this.team,fogInSupply);
                 }
+                if (bot != null) bot.formulateInput();
                 i++;
             } else {
                 System.out.println("Square too far or the same");
+                if (bot != null) break;
             }
         }
 
         return moved;
     }
-    protected boolean guide(int distance) {
+    protected boolean guide(int distance, Bot bot) {
         int choice;
         ArrayList<Token> friendlyTokenList = ((this.cardGroup).getGame()).getTokenList(this.team);
         Token guidedToken;
@@ -225,19 +271,28 @@ abstract public class Card {
         }
 
         if ( foundNonSuppressed ) {
-            ((this.cardGroup).getGame()).printTokenInfo(this.team);
+            if (bot == null) {
+                ((this.cardGroup).getGame()).printTokenInfo(this.team);
+                choice = this.enterIntFromRange("the index(>0) of target token",1,friendlyTokenList.size());
+                guidedToken = friendlyTokenList.get(choice-1);
+            } else {
+                guidedToken = bot.targetTokenPick(this.team);
+                if (guidedToken == null) return false;
+            }
 
-            choice = this.enterIntFromRange( "the index(>0) of target token", 1, friendlyTokenList.size() );
-            guidedToken = friendlyTokenList.get(choice-1);
+            if ( guidedToken.getSuppressed() == true ) {
+                System.out.println("Token is suppressed");
+                return false;
+            }
 
-            return this.move(distance,guidedToken);
+            return this.move(distance,guidedToken,bot);
         } else {
             System.out.println("HUIHUIHUI");
             return false;
         }
     }
 
-    protected boolean attack(int power, Token executor) {
+    protected boolean attack(int power, Token executor, Bot bot) {
         int otherTeam = Constants.otherTeam(this.team);
         int choice, defence, roll;
         ArrayList<Token> enemyTokenList = ((this.cardGroup).getGame()).getTokenList(otherTeam);
@@ -245,10 +300,14 @@ abstract public class Card {
         boolean success = false;
 
         if ( !enemyTokenList.isEmpty() ) {
-            ((this.cardGroup).getGame()).printTokenInfo(otherTeam);
-
-            choice = this.enterIntFromRange( "the index(>0) of target token", 1, enemyTokenList.size() );
-            targetToken = enemyTokenList.get(choice-1);
+            if (bot == null) {
+                ((this.cardGroup).getGame()).printTokenInfo(otherTeam);
+                choice = this.enterIntFromRange( "the index(>0) of target token", 1, enemyTokenList.size() );
+                targetToken = enemyTokenList.get(choice-1);
+            } else {
+                targetToken = bot.targetTokenPick(otherTeam);
+                if (targetToken == null) return false;
+            }
 
             defence = targetToken.getArmor();
             defence += (targetToken.getSquare()).getArmor(executor);
@@ -293,7 +352,7 @@ abstract public class Card {
             return false;
         }
     }
-    protected boolean suppress(int power, Token executor) {
+    protected boolean suppress(int power, Token executor, Bot bot) {
         int otherTeam = Constants.otherTeam(this.team);
         int choice, defence, roll;
         ArrayList<Token> enemyTokenList = ((this.cardGroup).getGame()).getTokenList(otherTeam);
@@ -301,10 +360,14 @@ abstract public class Card {
         boolean success = false;
 
         if ( !enemyTokenList.isEmpty() ) {
-            ((this.cardGroup).getGame()).printTokenInfo(otherTeam);
-
-            choice = this.enterIntFromRange( "the index(>0) of target token", 1, enemyTokenList.size() );
-            targetToken = enemyTokenList.get(choice-1);
+            if (bot == null) {
+                ((this.cardGroup).getGame()).printTokenInfo(otherTeam);
+                choice = this.enterIntFromRange( "the index(>0) of target token", 1, enemyTokenList.size() );
+                targetToken = enemyTokenList.get(choice-1);
+            } else {
+                targetToken = bot.targetTokenPick(otherTeam);
+                if (targetToken == null) return false;
+            }
 
             defence = targetToken.getArmor();
             defence += (targetToken.getSquare()).getArmor(executor);
@@ -312,6 +375,7 @@ abstract public class Card {
 
             for ( int i = 0; i < power; i++ ) {
                 roll = (int)(Math.random()*10);
+                System.out.println( ">roll:" + roll + " vs defence:" + defence );
                 if ( roll == 0 || roll >= defence ) {
                     success = true;
                     break;
@@ -347,6 +411,7 @@ abstract public class Card {
 
                 for ( int j = 0; j < power; j++ ) {
                     roll = (int)(Math.random()*10);
+                    System.out.println( ">roll:" + roll + " vs defence:" + defence );
                     if ( roll == 0 || roll >= defence ) {
                         success = true;
                         break;
@@ -385,23 +450,29 @@ abstract public class Card {
         }
     }
 
-    protected void target(Token executor) {
+    protected boolean target(Token executor, Bot bot) {
         Square targetSquare;
         int x, y;
 
-        while (true) {
+        if (bot == null) {
             x = this.enterAnyInt("x coordinate of target square");
             y = this.enterAnyInt("y coordinate of target square");
+        } else {
+            int[] coords = bot.targetSquare();
+            x = coords[0];
+            y = coords[1];
+        }
 
-            targetSquare = (((this.cardGroup).getGame()).getField()).getSquare(x,y);
-            if (targetSquare == null) {
-                System.out.println("Invalid square");
-            } else if ( targetSquare.measureDistanceTo(executor.getSquare()) >= 3 ) {
-                executor.setMortarTarget(targetSquare);
-                break;
-            } else {
-                System.out.println("Square too close");
-            }
+        targetSquare = (((this.cardGroup).getGame()).getField()).getSquare(x,y);
+        if (targetSquare == null) {
+            System.out.println("Invalid square");
+            return false;
+        } else if ( targetSquare.measureDistanceTo(executor.getSquare()) >= 3 ) {
+            executor.setMortarTarget(targetSquare);
+            return true;
+        } else {
+            System.out.println("Square too close");
+            return false;
         }
     }
     protected boolean control(Token executor) {
@@ -433,11 +504,12 @@ abstract public class Card {
             return false;
         }
     }
-    protected boolean bolster(int numberOfCards) {
+    protected boolean bolster(int numberOfCards, Bot bot) {
         String input;
         CardGroup supply = ((this.cardGroup).getGame()).getSupply(this.team);
         CardGroup discard = ((this.cardGroup).getGame()).getDiscard(this.team);
         int numberOfCardsInSupply = (supply.getCards()).size();
+        Card chosenCard;
         boolean bolstered = false;
 
         if (numberOfCardsInSupply == 0) {
@@ -448,17 +520,27 @@ abstract public class Card {
         }
 
         for ( int i = 0; i < numberOfCards; i++ ) {
-            System.out.println("Do you want to end the bolster early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the bolster early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
 
-            discard.supplyToDiscard( this.team, supply.chooseCard("supplies") );
+                chosenCard = supply.chooseCard("supplies");
+            } else {
+                if ( i > 0 && bot.actionSkip() ) break;
+
+                chosenCard = bot.chooseCardFromGroup(supply);
+                if (chosenCard == null) break;
+            }
+
+            discard.supplyToDiscard( this.team, chosenCard );
+            if (bot != null) bot.formulateInput();
             bolstered = true;
         }
 
         return bolstered;
     }
-    protected boolean bolster(int numberOfCards, int squad) {
+    protected boolean bolster(int numberOfCards, int squad, Bot bot) {
         String input;
         CardGroup supply = ((this.cardGroup).getGame()).getSupply(this.team);
         CardGroup discard = ((this.cardGroup).getGame()).getDiscard(this.team);
@@ -479,16 +561,26 @@ abstract public class Card {
         }
 
         for ( int i = 0; i < numberOfCards; ) {
-            System.out.println("Do you want to end the bolster early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the bolster early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
 
-            chosenCard = supply.chooseCard("supplies");
+                chosenCard = supply.chooseCard("supplies");
+            } else {
+                if ( i > 0 && bot.actionSkip() ) break;
+
+                chosenCard = bot.chooseCardFromGroup(supply);
+                if (chosenCard == null) break;
+            }
+
             if (chosenCard.getSquad() != squad) {
                 System.out.println("Wrong squad");
+                if (bot != null) break;
             } else {
                 discard.supplyToDiscard(this.team,chosenCard);
                 bolstered = true;
+                if (bot != null) bot.formulateInput();
                 i++;
 
                 foundSquad = supply.findType(Constants.TYPE_NAMES[2],squad) != null;
@@ -502,7 +594,7 @@ abstract public class Card {
 
         return bolstered;
     }
-    protected boolean command(int numberOfCards) {
+    protected boolean command(int numberOfCards, Bot bot) {
         String input;
         CardGroup hand = ((this.cardGroup).getGame()).getHand(this.team);
         CardGroup deck = ((this.cardGroup).getGame()).getDeck(this.team);
@@ -519,18 +611,23 @@ abstract public class Card {
         }
 
         for ( int i = 0; i < numberOfCards; i++ ) {
-            System.out.println("Do you want to end the command early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the command early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            } else {
+                if ( i > 0 && bot.actionSkip() ) break;
+            }
 
             hand.randomDeckToHand(this.team);
-            hand.printInfo("hand");
+            if (bot == null) hand.printInfo("hand");
+            else bot.formulateInput();
             commanded = true;
         }
 
         return commanded;
     }
-    protected boolean inspire(int numberOfCards) {
+    protected boolean inspire(int numberOfCards, Bot bot) {
         String input;
         CardGroup hand = ((this.cardGroup).getGame()).getHand(this.team);
         CardGroup playArea = ((this.cardGroup).getGame()).getPlayArea(this.team);
@@ -551,16 +648,26 @@ abstract public class Card {
         }
 
         for ( int i = 0; i < numberOfCards; ) {
-            System.out.println("Do you want to end the inspire early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
+            if (bot == null) {
+                System.out.println("Do you want to end the inspire early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) break;
 
-            chosenCard = playArea.chooseCard("play area");
+                chosenCard = playArea.chooseCard("play area");
+            } else {
+                // if ( i > 0 && bot.actionSkip() ) break;
+
+                chosenCard = bot.chooseCardFromGroup(playArea);
+                if (chosenCard == null) break;
+            }
+
             if (chosenCard.getSquad() != this.squad) {
                 System.out.println("Wrong squad");
+                if (bot != null) break;
             } else {
                 hand.playAreaToHand(this.team,chosenCard);
                 inspired = true;
+                // if (bot != null) bot.formulateInput();
                 i++;
 
                 foundSquad = playArea.findType(Constants.TYPE_NAMES[2],this.squad) != null;
@@ -575,7 +682,7 @@ abstract public class Card {
         return inspired;
     }
 
-    public void pickAction() {
+    public void pickAction(Bot bot) {
         System.out.println("No actions!!!(abstract)");
     }
 }

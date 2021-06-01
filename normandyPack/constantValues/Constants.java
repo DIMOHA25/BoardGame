@@ -3,6 +3,7 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class Constants {
     public static final int NUMBER_OF_SCENARIOS = 5;
@@ -242,6 +243,82 @@ public class Constants {
 
     public static final String[] TYPE_NAMES = {"Platoon Sergeant", "Platoon Guide", "Squad Leader",
     "Rifleman", "Scout", "Machine Gunner", "Mortar", "Sniper", "Fog of War"};
+
+    public static final String[] BOT_TOKEN_TYPES = {
+        Constants.TYPE_NAMES[6],
+        Constants.TYPE_NAMES[5],
+        Constants.TYPE_NAMES[5],
+        Constants.TYPE_NAMES[5],
+        Constants.TYPE_NAMES[7],
+        Constants.TYPE_NAMES[3],
+        Constants.TYPE_NAMES[3],
+        Constants.TYPE_NAMES[3],
+        Constants.TYPE_NAMES[4],
+        Constants.TYPE_NAMES[4],
+        Constants.TYPE_NAMES[4]
+    };
+    public static final int[] BOT_TOKEN_SQUADS = {
+        Constants.NO_SQUAD,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C,
+        Constants.NO_SQUAD,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C
+    };
+    public static final String[] BOT_CARD_NAMES = {
+        Constants.TYPE_NAMES[8],
+        Constants.TYPE_NAMES[6],
+        Constants.TYPE_NAMES[5],
+        Constants.TYPE_NAMES[5],
+        Constants.TYPE_NAMES[5],
+        Constants.TYPE_NAMES[7],
+        Constants.TYPE_NAMES[3],
+        Constants.TYPE_NAMES[3],
+        Constants.TYPE_NAMES[3],
+        Constants.TYPE_NAMES[4],
+        Constants.TYPE_NAMES[4],
+        Constants.TYPE_NAMES[4],
+        Constants.TYPE_NAMES[2],
+        Constants.TYPE_NAMES[2],
+        Constants.TYPE_NAMES[2],
+        Constants.TYPE_NAMES[1],
+        Constants.TYPE_NAMES[0]
+    };
+    public static final int[] BOT_CARD_SQUADS = {
+        Constants.NO_SQUAD,
+        Constants.NO_SQUAD,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C,
+        Constants.NO_SQUAD,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C,
+        Constants.SQUAD_A,
+        Constants.SQUAD_B,
+        Constants.SQUAD_C,
+        Constants.NO_SQUAD,
+        Constants.NO_SQUAD
+    };
+
+    public static final int LOCAL_PVP = 0;
+    public static final int VS_BOT = 1;
+    public static final int BOT_VS_BOT = 2;
+    public static final int ONLINE_PVP = 3;
+    public static final int NUMBER_OF_GAME_MODES = 4;
+
+
+    public static final int KRASNIY_KORPUS = 0;//tupo nihuya ne delayet
+    public static final int SHOLOHOV = 1;//random
+    public static final int NUMBER_OF_BOTS = 2;
 
     public static final int TEAM_AMERICANS = 0;
     public static final int TEAM_GERMANS = 1;

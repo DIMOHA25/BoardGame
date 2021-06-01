@@ -5,16 +5,19 @@ import normandyPack.board.*;
 import normandyPack.cards.*;
 import normandyPack.game.*;
 import normandyPack.constantValues.*;
+import normandyPack.bots.*;
 
 public class Game {
     Scanner scanner = new Scanner(System.in);
     //
     private int americanScore, germanScore;
     private int americanGoal, germanGoal;
-    private int initiative, scenarioNumber;
+    private int initiative, scenarioNumber, gameMode;
+    private String botSpawnInfo[] = new String[2];
     private boolean verticalLines;
     private boolean americansPinned, germansPinned;
     private boolean victorDecided, americansWon;
+    private Bot teamBots[] = {null, null};
     private ArrayList<Token> americanTokens, germanTokens;
     private CardGroup decks[] = {new CardGroup(Constants.TEAM_AMERICANS,this),
         new CardGroup(Constants.TEAM_GERMANS,this)};
@@ -54,6 +57,14 @@ public class Game {
         return this.playAreas[team];
     }
 
+    public String getBotSpawnInfo(int team) {
+        return this.botSpawnInfo[team];
+    }
+
+    public int getInitiative() {
+        return this.initiative;
+    }
+
     public Field getField() {
         return this.field;
     }
@@ -63,6 +74,15 @@ public class Game {
         } else {
             return this.germanTokens;
         }
+    }
+    
+    public int getTeamScore(int team) {
+        if  (team == Constants.TEAM_AMERICANS ) return this.americanScore;
+        else return this.germanScore;
+    }
+    public int getTeamGoal(int team) {
+        if  (team == Constants.TEAM_AMERICANS ) return this.americanGoal;
+        else return this.germanGoal;
     }
     
     public void addToAmericanScore(int addition) {
@@ -104,6 +124,56 @@ public class Game {
         return null;
     }
 
+    public String botCardGroupInfo(CardGroup group) {
+        String output = "";
+        String[] names = Constants.BOT_CARD_NAMES;
+        int[] squads = Constants.BOT_CARD_SQUADS;
+
+        int found = group.findTypeCount(names[0],squads[0]);
+        if (found < 10) output += "0";
+        output += found;
+        for ( int i = 1; i < 17; i++ ) {
+            output += group.findTypeCount(names[i],squads[i]);
+        }
+
+        return output;
+    }
+
+    public String botTokenInfo(int team) {
+        String output = "";
+        String[] types = Constants.BOT_TOKEN_TYPES;
+        int[] squads = Constants.BOT_TOKEN_SQUADS;
+        int[] xCoordsT = {9,9};
+        int[] yCoordsT = {9,9};
+        Token bufferToken;
+        boolean suppressed;
+
+        for ( int t = 0; t < 2; t++ ) {
+            team = Constants.otherTeam(team);
+            for ( int i = 0; i < 11; i++ ) {
+                bufferToken = this.findToken(types[i],squads[i],team);
+                if (bufferToken != null) {
+                    if (i == 0) {
+                        Square target = bufferToken.getMortarTarget();
+                        if (target != null) {
+                            xCoordsT[team] = target.getX();
+                            yCoordsT[team] = target.getY();
+                        }
+                    }
+                    output += (bufferToken.getSquare()).getX();
+                    output += (bufferToken.getSquare()).getY();
+                    suppressed = bufferToken.getSuppressed();
+                    if (suppressed) output += "1";
+                    else output += "0";
+                } else output += "999";
+            }
+        }
+
+        output = "" + xCoordsT[Constants.otherTeam(team)] + yCoordsT[Constants.otherTeam(team)]
+        + xCoordsT[team] + yCoordsT[team] + output;
+
+        return output;
+    }
     public void printTokenInfo(int team) {
         if ( team == Constants.TEAM_AMERICANS ) {
             for (Token token : this.americanTokens) {
@@ -114,7 +184,6 @@ public class Game {
                 token.printInfo();
             }
         }
-
     }
 
     private void victory(int team) {
@@ -177,6 +246,47 @@ public class Game {
 
         if ( this.americansPinned == true || this.germansPinned == true ) {
             this.winCheck();
+        }
+    }
+
+    private int enterIntFromRange(int min, int max) {
+        int i;
+
+        if (min > max) {
+            System.out.println("HUIHUIHUI");
+            return -1;
+        }
+
+        while(true) {
+            if ( this.scanner.hasNextInt() ) {
+                i = this.scanner.nextInt();
+                if ( i >= min && i <= max ) {
+                    break;
+                } else {
+                    System.out.println("Not a valid number");
+                    this.scanner.nextLine();
+                }
+            } else {
+                System.out.println("Not a number");
+                this.scanner.nextLine();
+            }
+        }
+        this.scanner.nextLine();//nuzhno(?)
+
+        return i;
+    }
+    private void pickBot(int team) {
+        System.out.println("Pick a bot for " + Constants.teamName(team) + ":");
+        System.out.println("0 - Krasniy Korpus");
+        System.out.println("1 - Sholohov");
+        int chosenBot = this.enterIntFromRange(0,Constants.NUMBER_OF_BOTS-1);
+        switch (chosenBot) {
+            case (Constants.KRASNIY_KORPUS):
+                this.teamBots[team] = new KKBot(team, this);
+                break;
+            case (Constants.SHOLOHOV):
+                this.teamBots[team] = new SholoBot(team, this);
+                break;
         }
     }
 
@@ -268,6 +378,10 @@ public class Game {
                 }
             }
         }
+        //
+        for ( int t = 0; t < 2; t++ ) {
+            this.botSpawnInfo[t] = (this.field).getBotSpawns(t);
+        }
     }
 
     private void turn(int team) {
@@ -278,41 +392,49 @@ public class Game {
 
         while ( this.victorDecided == false &&
         (this.hands[team]).findNonType(Constants.TYPE_NAMES[8], Constants.NO_SQUAD) != null ) {
-            System.out.println();
-            this.hands[team].printInfo("hand");
-            this.playAreas[team].printInfo("play area");
-            this.supplies[0].printInfo("supplies");
-            this.supplies[1].printInfo("supplies");
-            this.field.printInfo();
-            this.printTokenInfo(0);
-            this.printTokenInfo(1);
-            System.out.println( "americans:" + this.americanScore + "/" + this.americanGoal );
-            System.out.println( "germans:" + this.germanScore + "/" + this.germanGoal );
+            if (this.teamBots[team] == null) {
+                System.out.println();
+                this.hands[team].printInfo("hand");
+                this.playAreas[team].printInfo("play area");
+                this.supplies[0].printInfo("supplies");
+                this.supplies[1].printInfo("supplies");
+                this.field.printInfo();
+                this.printTokenInfo(0);
+                this.printTokenInfo(1);
+                System.out.println( "americans:" + this.americanScore + "/" + this.americanGoal );
+                System.out.println( "germans:" + this.germanScore + "/" + this.germanGoal );
 
-            System.out.println("\nDo you want to end the turn early? y/n");
-            input = this.scanner.nextLine();
-            if ( input.length() == 1 && input.charAt(0) == 'y' ) {
-                break;
+                System.out.println("\nDo you want to end the turn early? y/n");
+                input = this.scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) {
+                    break;
+                } else {
+                    card = (this.hands[team]).chooseCard("hand");
+                    card.pickAction(null);
+                }
             } else {
-                card = (this.hands[team]).chooseCard("hand");
-                card.pickAction();
+                (this.teamBots[team]).formulateInput();
+                System.out.println( Constants.teamName(team) +
+                " input:\t" + (this.teamBots[team]).getInput() );
+                System.out.println( Constants.teamName(team) +
+                " output:\t" + (this.teamBots[team]).getOutput() );
+
+                if ( (this.teamBots[team]).turnSkip() == true ) {
+                    System.out.println( (this.teamBots[team]).getName() + " skipped this turn" );
+                    break;
+                } else {
+                    card = (this.teamBots[team]).playPick();
+                    if (card != null) {
+                        System.out.println( (this.teamBots[team]).getName() +
+                        ": tried playing " + card.getInfoString() );
+                        card.pickAction(this.teamBots[team]);
+                    } else System.out.println( (this.teamBots[team]).getName() +
+                    ": was too dumb to play a card" );
+                }
             }
         }
         (this.discards[team]).allPlayAreaToDiscard(team);
         (this.discards[team]).allHandToDiscard(team);
-
-        // System.out.println();
-        // // this.decks[0].printInfo("deck");
-        // this.supplies[0].printInfo("supplies");
-        // // this.decks[1].printInfo("deck");
-        // this.supplies[1].printInfo("supplies");
-        // this.field.printInfo();
-        // this.printTokenInfo(0);
-        // this.printTokenInfo(1);
-        // System.out.println( "americans:" + this.americanScore + "/" + this.americanGoal );
-        // System.out.println( "germans:" + this.germanScore + "/" + this.germanGoal );
-        // // this.hands[0].printInfo("hand");
-        // // this.playAreas[0].printInfo("play area");
     }
 
     private void round() {
@@ -325,7 +447,18 @@ public class Game {
             (this.hands[i]).randomDeckToHand(i);
             (this.hands[i]).randomDeckToHand(i);
             (this.hands[i]).randomDeckToHand(i);
-            chosenInitiativeCards[i] = (this.hands[i]).chooseCard("hand", true);
+
+            if (this.teamBots[i] != null) {
+                (this.teamBots[i]).formulateInput();
+                System.out.println( Constants.teamName(i) + " input:\t" + (this.teamBots[i]).getInput() );
+                System.out.println( Constants.teamName(i) + " output:\t" + (this.teamBots[i]).getOutput() );
+                chosenInitiativeCards[i] = (this.teamBots[i]).intiativePick();
+                System.out.println( (this.teamBots[i]).getName() + " intiative pick: " +
+                (chosenInitiativeCards[i]).getInfoString() );
+            } else {
+                chosenInitiativeCards[i] = (this.hands[i]).chooseCard("hand", true);
+            }
+
             (this.discards[i]).handToDiscard(i,chosenInitiativeCards[i]);
         }
 
@@ -340,24 +473,39 @@ public class Game {
 
     public void start() {
         System.out.println("Pick a scenario 1-" + Constants.NUMBER_OF_SCENARIOS);
-        while(true) {
-            if ( this.scanner.hasNextInt() ) {
-                this.scenarioNumber = this.scanner.nextInt();
-                if ( this.scenarioNumber >= 1 && this.scenarioNumber <= Constants.NUMBER_OF_SCENARIOS ) {
-                    break;
-                } else {
-                    System.out.println("Not a valid number");
-                    this.scanner.nextLine();
-                }
-            } else {
-                System.out.println("Not a number");
-                this.scanner.nextLine();
-            }
-        }
-        this.scanner.nextLine();//nuzhno
-
+        this.scenarioNumber = this.enterIntFromRange(1,Constants.NUMBER_OF_SCENARIOS);
         this.readScenario(Constants.SCENARIOS[this.scenarioNumber-1]);
         this.victorDecided = false;
+
+        System.out.println("Pick a game mode:");
+        System.out.println("0 - Local PvP");
+        System.out.println("1 - vs Bot");
+        System.out.println("2 - Bot vs Bot");
+        System.out.println("3 - Online PvP");
+        this.gameMode = this.enterIntFromRange(0,Constants.NUMBER_OF_GAME_MODES-1);
+        switch (this.gameMode) {
+            case (Constants.LOCAL_PVP):
+                break;
+            case (Constants.VS_BOT):
+                int botTeam;
+                String input;
+                System.out.println("Do you want to play as americans? y/n");
+                input = scanner.nextLine();
+                if ( input.length() == 1 && input.charAt(0) == 'y' ) {
+                    botTeam = Constants.TEAM_GERMANS;
+                } else {
+                    botTeam = Constants.TEAM_AMERICANS;
+                }
+                this.pickBot(botTeam);
+                break;
+            case (Constants.BOT_VS_BOT):
+                for ( int i = 0; i < 2; i++ ) {
+                    this.pickBot(i);
+                }
+                break;
+            case (Constants.ONLINE_PVP):
+                break;
+        }
 
         System.out.println("\n\n\n\n\nstart\n");
         // this.decks[0].printInfo("deck");
