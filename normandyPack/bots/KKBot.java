@@ -9,7 +9,7 @@ public class KKBot extends Bot {
     public KKBot(int team, Game game) {
         this.team = team;
         this.game = game;
-        this.name = "Krasniy Korpus";
+        this.name = "Vlad";
         this.output = "11111111111111111"+"11"+"1111111111111111"+"111111111111111"+"1111111111111111"+"99";
     }
 

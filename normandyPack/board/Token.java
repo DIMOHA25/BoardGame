@@ -84,26 +84,33 @@ public class Token {
     }
 
     public void printInfo() {
-        System.out.print("at:(" + (this.square).getX() + "," + (this.square).getY() + ")");
-        System.out.print( " " + Constants.teamName(this.team) + " " );
-        System.out.print( this.type );
+        System.out.print( this.stringInfo() );
+    }
+    public String stringInfo() {
+        String output = "";
+
+        output += ("at:(" + (this.square).getX() + "," + (this.square).getY() + ")");
+        output += ( " " + Constants.teamName(this.team) + " " );
+        output += ( this.type );
         switch ( this.squad ) {
             case (Constants.NO_SQUAD):
                 break;
             case (Constants.SQUAD_A):
-                System.out.print(" A");
+                output += (" A");
                 break;
             case (Constants.SQUAD_B):
-                System.out.print(" B");
+                output += (" B");
                 break;
             case (Constants.SQUAD_C):
-                System.out.print(" C");
+                output += (" C");
                 break;
         }
         if (this.mortarTarget != null) {
-            System.out.print(" targeting:(" + (this.mortarTarget).getX() + ","
+            output += (" targeting:(" + (this.mortarTarget).getX() + ","
             + (this.mortarTarget).getY() + ")");
         }
-        System.out.print("\n");
+        output += ("\n");
+
+        return output;
     }
 }

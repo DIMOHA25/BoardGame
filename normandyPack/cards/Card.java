@@ -128,7 +128,7 @@ abstract public class Card {
         if (this.spawnPoint != null) {
             return (this.spawnPoint).addToken(this.team, this.name, this.squad);
         }
-        System.out.println("HUIHUIHUI");
+        System.out.println("HUIHUIHUIpt");
         return null;
     }
     protected void unsuppress(Token token) {
@@ -272,7 +272,7 @@ abstract public class Card {
 
         if ( foundNonSuppressed ) {
             if (bot == null) {
-                ((this.cardGroup).getGame()).printTokenInfo(this.team);
+                ((this.cardGroup).getGame()).printTokenInfo(this.team,true);
                 choice = this.enterIntFromRange("the index(>0) of target token",1,friendlyTokenList.size());
                 guidedToken = friendlyTokenList.get(choice-1);
             } else {
@@ -301,7 +301,7 @@ abstract public class Card {
 
         if ( !enemyTokenList.isEmpty() ) {
             if (bot == null) {
-                ((this.cardGroup).getGame()).printTokenInfo(otherTeam);
+                ((this.cardGroup).getGame()).printTokenInfo(otherTeam,true);
                 choice = this.enterIntFromRange( "the index(>0) of target token", 1, enemyTokenList.size() );
                 targetToken = enemyTokenList.get(choice-1);
             } else {
@@ -348,7 +348,7 @@ abstract public class Card {
             }
             return true;
         } else {
-            System.out.println("HUIHUIHUI");
+            System.out.println("HUIHUIHUIatk");
             return false;
         }
     }
@@ -361,7 +361,7 @@ abstract public class Card {
 
         if ( !enemyTokenList.isEmpty() ) {
             if (bot == null) {
-                ((this.cardGroup).getGame()).printTokenInfo(otherTeam);
+                ((this.cardGroup).getGame()).printTokenInfo(otherTeam,true);
                 choice = this.enterIntFromRange( "the index(>0) of target token", 1, enemyTokenList.size() );
                 targetToken = enemyTokenList.get(choice-1);
             } else {
@@ -681,6 +681,8 @@ abstract public class Card {
 
         return inspired;
     }
+
+    //hui
 
     public void pickAction(Bot bot) {
         System.out.println("No actions!!!(abstract)");

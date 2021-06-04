@@ -171,12 +171,38 @@ public class Square {
         }
         for ( int i = 0; i < 2; i++ ) {
             if ( squareSpawns[i] == true ) {
-                System.out.print( ", spawns:(" );
-                if (this.spawns[i][0] == true) System.out.print( Constants.teamName(i) + " A squad, " );
-                if (this.spawns[i][1] == true) System.out.print( Constants.teamName(i) + " B squad, " );
-                if (this.spawns[i][2] == true) System.out.print( Constants.teamName(i) + " C squad, " );
-                if (this.spawns[i][3] == true) System.out.print( Constants.teamName(i) + " mortar, " );
-                if (this.spawns[i][4] == true) System.out.print( Constants.teamName(i) + " snipers, " );
+                System.out.print( ", spawns(" + Constants.teamName(i) + "):(" );
+                for ( int j = 0; j < 5; j++ ) {
+                    if (this.spawns[i][j] == false) continue;
+                    for ( int k = 0; k < j; k++ ) {
+                        if (this.spawns[i][k] == true) {
+                            System.out.print( ", " );
+                            break;
+                        }
+                    }
+                    switch (j) {
+                        case (0):
+                            System.out.print( "A squad" );
+                            break;
+                        case (1):
+                            System.out.print( "B squad" );
+                            break;
+                        case (2):
+                            System.out.print( "C squad" );
+                            break;
+                        case (3):
+                            System.out.print( "mortar" );
+                            break;
+                        case (4):
+                            System.out.print( "snipers" );
+                            break;
+                    }
+                }
+                // if (this.spawns[i][0] == true) System.out.print( "A squad, " );
+                // if (this.spawns[i][1] == true) System.out.print( "B squad, " );
+                // if (this.spawns[i][2] == true) System.out.print( "C squad, " );
+                // if (this.spawns[i][3] == true) System.out.print( "mortar, "  );
+                // if (this.spawns[i][4] == true) System.out.print( "snipers, " );
                 System.out.print( ")" );
             }
         }

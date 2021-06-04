@@ -19,7 +19,7 @@ public class Menu {
             System.out.println("Do you want to start a game? y/n");
             input = scanner.nextLine();
             if ( input.length() == 1 && input.charAt(0) == 'y' ) {
-                System.out.println( "ok masta, let's kill da ho..." );
+                // System.out.println( "ok masta, let's kill da ho..." );
                 Game game = new Game();
                 game.start();
                 game = null;

@@ -109,8 +109,8 @@ abstract public class Bot {
         int buffer;
         Card pick = null;
 
-        for ( int i = 0; i < 17; i++ ) {
-            buffer = Integer.parseInt(this.output.substring(50+i,51+i));
+        for ( int i = 1; i < 17; i++ ) {
+            buffer = Integer.parseInt(this.output.substring(49+i,50+i));
             if (buffer == 1) {
                 pick = group.findType(names[i],squads[i]);
                 if (pick != null) return pick;
@@ -150,13 +150,56 @@ abstract public class Bot {
         Integer.parseInt(this.output.substring(67,68))};
         return output;
     }
+
+    public String getFormattedInput() {
+        String out = "";
+
+        out += this.input.substring(0,1) + "\n";
+        out += this.input.substring(1,3) + " " + this.input.substring(3,5) + "\n";
+        out += this.input.substring(5,7) + " " + this.input.substring(7,9) + "\n";
+        for ( int i = 0; i < 7; i++ ) {
+            for ( int j = 0; j < 6; j++ ) {
+                if (j > 0) out += " ";
+                out += this.input.substring(9+(j*4)+(i*24), 13+(j*4)+(i*24));
+            }
+            out += "\n";
+        }
+        out += this.input.substring(177,179) + " "
+            + this.input.substring(179,181) + " "
+            + this.input.substring(181,183) + " "
+            + this.input.substring(183,185) + " "
+            + this.input.substring(185,187) + "\n";
+        out += this.input.substring(187,189) + " "
+            + this.input.substring(189,191) + " "
+            + this.input.substring(191,193) + " "
+            + this.input.substring(193,195) + " "
+            + this.input.substring(195,197) + "\n";
+        out += this.input.substring(197,199) + "\n";
+        out += this.input.substring(199,201) + "\n";
+        for ( int i = 0; i < 2; i++ ) {
+            for ( int j = 0; j < 11; j++ ) {
+                if (j > 0) out += " ";
+                out += this.input.substring(201+(j*3)+(i*33), 204+(j*3)+(i*33));
+            }
+            out += "\n";
+        }
+        for ( int i = 0; i < 6; i++ ) {
+            out += this.input.substring(267+(i*18), 269+(i*18));
+            for ( int j = 0; j < 16; j++ ) {
+                out += " " + this.input.substring(269+j+(i*18), 270+j+(i*18));
+            }
+            out += "\n";
+        }
+
+        return out;
+    }
 }
 
 /*
 input {
 initiative ownership 0/1
-scores (0-10 enemy,own)
-target scores (0-10 enemy,own)
+scores (00-10 enemy,own)
+target scores (00-10 enemy,own)
 squares (armor,points,enemyControl,ownControl) 6x7
 token info (
 enemy spawns ((x;y) A,B,C,mortar,snipers)

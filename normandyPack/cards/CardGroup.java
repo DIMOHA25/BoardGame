@@ -37,7 +37,7 @@ public class CardGroup {
     public Card chooseCard(String name, boolean printInitiative) {
         int index, groupSize = (this.cards).size();
 
-        this.printInfo(name, printInitiative);
+        this.printInfo(name, printInitiative, true);
         if ( groupSize > 0 ) {
             while(true) {
                 System.out.println( "Pick a card (index)" );
@@ -203,15 +203,50 @@ public class CardGroup {
     }
 
     public void printInfo(String name) {
-        this.printInfo(name, false);
+        this.printInfo(name, false, false);
     }
-    public void printInfo(String name, boolean printInitiative) {
+    public void printInfo(String name, boolean printInitiative, boolean printIndex) {
+        int index = 1;
         System.out.print( "Cards in " + name + " (team " + Constants.teamName(this.team) + "): " );
-        for (Card card : this.cards) {
-            System.out.print( card.getInfoString() );
-            if (printInitiative) System.out.print( " I:" + card.getInitiative() );
-            System.out.print(", ");
+        if ( printInitiative || printIndex ) {
+            for (Card card : this.cards) {
+                System.out.print( card.getInfoString() );
+                if (printInitiative) System.out.print( " I:" + card.getInitiative() );
+                if (printIndex) {
+                    System.out.print( " [" + index + "]" );
+                    index++;
+                }
+                System.out.print(", ");
+            }
+            System.out.print("end\n");
+        } else {
+            System.out.print( "\n" + this.stringInfo() + "\n" );
         }
-        System.out.print("end\n");
+    }
+    public String stringInfo() {
+        String output = "", buffer;
+        int index;
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<Integer> counts = new ArrayList<Integer>();
+
+        for (Card card : this.cards) {
+            buffer = card.getInfoString();
+            index = names.lastIndexOf(buffer);
+            if ( index < 0 ) {
+                names.add(buffer);
+                counts.add(1);
+            } else {
+                counts.set(index,counts.get(index)+1);
+            }
+        }
+
+        for ( int i = names.size()-1; i >= 0; i-- ) {
+            output += counts.get(i);
+            output += "x ";
+            output += names.get(i);
+            if (i != 0) output += ",\n";
+        }
+
+        return output;
     }
 }

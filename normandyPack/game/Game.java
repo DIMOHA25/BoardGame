@@ -175,13 +175,21 @@ public class Game {
         return output;
     }
     public void printTokenInfo(int team) {
+        this.printTokenInfo(team, false);
+    }
+    public void printTokenInfo(int team, boolean printIndex) {
+        int i = 1;
         if ( team == Constants.TEAM_AMERICANS ) {
             for (Token token : this.americanTokens) {
-                token.printInfo();
+                if (!printIndex) token.printInfo();
+                else System.out.print( "[" + i + "] " + token.stringInfo() );
+                i++;
             }
         } else {
             for (Token token : this.germanTokens) {
-                token.printInfo();
+                if (!printIndex) token.printInfo();
+                else System.out.print( "[" + i + "] " + token.stringInfo() );
+                i++;
             }
         }
     }
@@ -198,30 +206,30 @@ public class Game {
     public void winCheck() {
         if ( this.americanGoal != Constants.PIN_GOAL && this.americanScore >= this.americanGoal ) {
             this.victory(Constants.TEAM_AMERICANS);
-            System.out.println(" DEBUG: american win via point goal");
+            // System.out.println(" DEBUG: american win via point goal");
         } else if ( this.germanGoal != Constants.PIN_GOAL && this.germanScore >= this.germanGoal ) {
             this.victory(Constants.TEAM_GERMANS);
-            System.out.println(" DEBUG: german win via point goal");
+            // System.out.println(" DEBUG: german win via point goal");
         } else if ( this.americanGoal == Constants.PIN_GOAL && this.germansPinned == true ) {
             this.victory(Constants.TEAM_AMERICANS);
-            System.out.println(" DEBUG: american win via pin goal");
+            // System.out.println(" DEBUG: american win via pin goal");
         } else if ( this.germanGoal == Constants.PIN_GOAL && this.americansPinned == true ) {
             this.victory(Constants.TEAM_GERMANS);
-            System.out.println(" DEBUG: german win via pin goal");
+            // System.out.println(" DEBUG: german win via pin goal");
         } else if ( this.germansPinned == true && this.americansPinned == true ) {
             if ( americanScore > germanScore ) {
                 this.victory(Constants.TEAM_AMERICANS);
-            System.out.println(" DEBUG: american win via points in a double pin");
+            // System.out.println(" DEBUG: american win via points in a double pin");
             } else if ( americanScore < germanScore ) {
                 this.victory(Constants.TEAM_GERMANS);
-            System.out.println(" DEBUG: german win via points in a double pin");
+            // System.out.println(" DEBUG: german win via points in a double pin");
             } else {
                 this.victory(this.initiative);
-            System.out.println( " DEBUG: " + Constants.teamName(this.initiative)
-            + " win via initiative in a double pin" );
+            // System.out.println( " DEBUG: " + Constants.teamName(this.initiative)
+            // + " win via initiative in a double pin" );
             }
         } else {
-            System.out.println(" DEBUG: no victor");
+            // System.out.println(" DEBUG: no victor");
         }
     }
 
@@ -277,8 +285,9 @@ public class Game {
     }
     private void pickBot(int team) {
         System.out.println("Pick a bot for " + Constants.teamName(team) + ":");
-        System.out.println("0 - Krasniy Korpus");
-        System.out.println("1 - Sholohov");
+        System.out.println("0 - Vlad");
+        System.out.println("1 - Timofey");
+        System.out.println("2 - Dima");
         int chosenBot = this.enterIntFromRange(0,Constants.NUMBER_OF_BOTS-1);
         switch (chosenBot) {
             case (Constants.KRASNIY_KORPUS):
@@ -286,6 +295,9 @@ public class Game {
                 break;
             case (Constants.SHOLOHOV):
                 this.teamBots[team] = new SholoBot(team, this);
+                break;
+            case (Constants.SCRIPTI):
+                this.teamBots[team] = new ScriptoBot(team, this);
                 break;
         }
     }
@@ -414,10 +426,10 @@ public class Game {
                 }
             } else {
                 (this.teamBots[team]).formulateInput();
-                System.out.println( Constants.teamName(team) +
-                " input:\t" + (this.teamBots[team]).getInput() );
-                System.out.println( Constants.teamName(team) +
-                " output:\t" + (this.teamBots[team]).getOutput() );
+                // System.out.println( Constants.teamName(team) +
+                // " input:\n" + (this.teamBots[team]).getFormattedInput() );
+                // System.out.println( Constants.teamName(team) +
+                // " output:\t" + (this.teamBots[team]).getOutput() );
 
                 if ( (this.teamBots[team]).turnSkip() == true ) {
                     System.out.println( (this.teamBots[team]).getName() + " skipped this turn" );
@@ -429,7 +441,7 @@ public class Game {
                         ": tried playing " + card.getInfoString() );
                         card.pickAction(this.teamBots[team]);
                     } else System.out.println( (this.teamBots[team]).getName() +
-                    ": was too dumb to play a card" );
+                    ": couldn't play a card" );
                 }
             }
         }
@@ -450,11 +462,12 @@ public class Game {
 
             if (this.teamBots[i] != null) {
                 (this.teamBots[i]).formulateInput();
-                System.out.println( Constants.teamName(i) + " input:\t" + (this.teamBots[i]).getInput() );
-                System.out.println( Constants.teamName(i) + " output:\t" + (this.teamBots[i]).getOutput() );
+                // System.out.println( Constants.teamName(i) + " input:\n" +
+                //     (this.teamBots[i]).getFormattedInput() );
+                // System.out.println( Constants.teamName(i) + " output:\t" + (this.teamBots[i]).getOutput() );
                 chosenInitiativeCards[i] = (this.teamBots[i]).intiativePick();
                 System.out.println( (this.teamBots[i]).getName() + " intiative pick: " +
-                (chosenInitiativeCards[i]).getInfoString() );
+                (chosenInitiativeCards[i]).getInfoString() );//SPOILER?!?!?!?
             } else {
                 chosenInitiativeCards[i] = (this.hands[i]).chooseCard("hand", true);
             }
@@ -481,7 +494,7 @@ public class Game {
         System.out.println("0 - Local PvP");
         System.out.println("1 - vs Bot");
         System.out.println("2 - Bot vs Bot");
-        System.out.println("3 - Online PvP");
+        // System.out.println("3 - Online PvP");
         this.gameMode = this.enterIntFromRange(0,Constants.NUMBER_OF_GAME_MODES-1);
         switch (this.gameMode) {
             case (Constants.LOCAL_PVP):
@@ -503,15 +516,15 @@ public class Game {
                     this.pickBot(i);
                 }
                 break;
-            case (Constants.ONLINE_PVP):
-                break;
         }
 
         System.out.println("\n\n\n\n\nstart\n");
         // this.decks[0].printInfo("deck");
         this.supplies[0].printInfo("supplies");
+        // System.out.println(this.supplies[0].stringInfo());
         // this.decks[1].printInfo("deck");
         this.supplies[1].printInfo("supplies");
+        // System.out.println(this.supplies[1].stringInfo());
         this.field.printInfo();
         this.printTokenInfo(0);
         this.printTokenInfo(1);

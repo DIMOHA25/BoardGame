@@ -10,7 +10,7 @@ public class SholoBot extends Bot {
     public SholoBot(int team, Game game) {
         this.team = team;
         this.game = game;
-        this.name = "Sholohov";
+        this.name = "Timofey";
     }
 
     public void formulateInput() {
